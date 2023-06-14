@@ -44,7 +44,7 @@
       "type": "chrome",
       "request": "launch",
       "name": "Demo Client",
-      "url": "http://127.0.0.1:3000",
+      "url": "http://ec2-54-183-155-25.us-west-1.compute.amazonaws.com",
       "webRoot": "${workspaceFolder}/"
     },
     {
