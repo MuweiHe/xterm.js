@@ -16,18 +16,6 @@ const ssh = new NodeSSH()
 const fs = require('fs')
 const path = require('path')
 
-// Load the AWS SDK for Node.js
-var AWS = require('aws-sdk');
-// Set the region 
-AWS.config.update({region: 'us-west-1'});
-
-var paras = {
-  KeyName: 'muwei-1-key',
-}
-
-// Create EC2 service object
-var ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
-
 // Whether to use binary transport.
 const USE_BINARY = os.platform() !== "win32";
 
@@ -59,7 +47,7 @@ function startServer() {
   app.use('/dist', express.static(__dirname + '/dist'));
   app.use('/src', express.static(__dirname + '/src'));
 
-  app.post('0.0.0.0:443/terminals', (req, res) => {
+  app.post('/terminals', (req, res) => {
     const env = Object.assign({}, process.env);
     env['COLORTERM'] = 'truecolor';
     var cols = parseInt(req.query.cols),
@@ -94,24 +82,15 @@ function startServer() {
     res.end();
   });
 
-  var params = {
-    DryRun: false,
-    InstanceIds: ['i-023e8c7cd29cd4d33'],
-  };
-  
-  // Call EC2 to retrieve policy for selected bucket
-  ec2.describeInstances(params, function(err, data) {
-    if (err) {
-      console.log("Error", err.stack);
-    } else {
-      console.log("Success", JSON.stringify(data));
-    }
-  });
-
   ssh.connect({
     host: '54.183.155.25',
     username: 'ec2-user',
     privateKeyPath: '/Users/mhe/documents/github/kubernetes/xterm.js/demo/muwei-1-key.pem'
+  }).then(function() {
+    ssh.execCommand('./bin/confluent version').then(function(result) {
+      console.log('STDOUT: ' + result.stdout)
+      console.log('STDERR: ' + result.stderr)
+    })
   })
 
   app.ws('/terminals/:pid', function (ws, req) {

@@ -279,7 +279,7 @@ function createTerminal(): void {
     fetch(url, { method: 'POST' });
   });
   protocol = (location.protocol === 'https:') ? 'wss://' : 'ws://';
-  socketURL = protocol + '0.0.0.0' + ((443) ? (':' + 433) : '') + '/terminals/';
+  socketURL = protocol + location.hostname + ((location.port) ? (':' + location.port) : '') + '/terminals/';
 
   addons.fit.instance!.fit();
 
